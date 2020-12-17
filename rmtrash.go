@@ -16,9 +16,13 @@ import (
 )
 
 var (
-	version     = "0.0.1"
+	version     = "0.0.2"
 	flagVersion = flag.Bool("v", false, "print out version info")
-	flagUser    = flag.String("u", "", "move the file to some other user's trash.")
+	flagUser    = flag.String("u", "", "move the file to some other user's trash")
+	_           = flag.Bool("r", false, "no effect, for compatibility with rm -r")
+	flagF       = flag.Bool("f", false, "no effect, for compatibility with rm -f")
+	flagRF      = flag.Bool("rf", false, "no effect, for compatibility with rm -rf")
+	flagFR      = flag.Bool("fr", false, "no effect, for compatibility with rm -fr")
 )
 
 func usage() {
@@ -74,8 +78,11 @@ Source: https://changkun.de/s/rmtrash
 		os.Exit(1)
 	}
 
-	_, err = os.Stat(src)
+	_, err = os.Lstat(src)
 	if os.IsNotExist(err) {
+		if *flagF || *flagRF || *flagFR {
+			return
+		}
 		fmt.Fprintf(os.Stderr, "no such file or directory\n")
 		os.Exit(1)
 	}
@@ -88,7 +95,7 @@ Source: https://changkun.de/s/rmtrash
 	dst := fmt.Sprintf("/Users/%s/.Trash/%s.%s", uname,
 		fname, time.Now().Format("20060102150405"))
 	if fext != "" {
-		dst = fmt.Sprintf("%s.%s", dst, fext)
+		dst = fmt.Sprintf("%s%s", dst, fext)
 	}
 
 	// Move
