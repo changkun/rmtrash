@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT
 // license that can be found in the LICENSE file.
 
+//go:build darwin
 // +build darwin
 
 package main
@@ -16,7 +17,7 @@ import (
 )
 
 var (
-	version     = "0.0.2"
+	version     = "0.0.3"
 	flagVersion = flag.Bool("v", false, "print out version info")
 	flagUser    = flag.String("u", "", "move the file to some other user's trash")
 	_           = flag.Bool("r", false, "no effect, for compatibility with rm -r")
@@ -71,7 +72,15 @@ Source: https://changkun.de/s/rmtrash
 		}
 	}
 
-	in := flag.Args()[0]
+	// If an argument contains a wildcard, such as rmtrash -rf ./x/*
+	// and the matches is ./x/x1 ./x/x2 ./x/x3, then the flag.Args will
+	// return all matches automatically. Process them all. Issue #2.
+	for _, in := range flag.Args() {
+		move(in, uname)
+	}
+}
+
+func move(in, uname string) {
 	src, err := filepath.Abs(in)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Invalid filepath: %s", in)
