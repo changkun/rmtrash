@@ -4,8 +4,10 @@ rmtrash moves directory entries to Trash on macOS.
 
 ## Usage
 
+Installation requires [Go 1.16+](https://go.dev).
+
 ```
-go get changkun.de/x/rmtrash
+go install changkun.de/x/rmtrash@latest
 ```
 
 ```
